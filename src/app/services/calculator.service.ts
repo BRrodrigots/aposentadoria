@@ -138,7 +138,7 @@ export class CalculatorService {
     let retPortfolio = finalPortfolio;
 
     for (let y = 1; y <= retirementYears; y++) {
-      const yearlyInflFactor = (1 + inflation / 100) ** y;
+      const yearlyInflFactor = (1 + inflation / 100) ** (y - 1);
       const adjustedWithdrawal = safeWithdrawalMonthly * yearlyInflFactor;
 
       let yearReturn = 0;
@@ -147,11 +147,16 @@ export class CalculatorService {
       for (let m = 1; m <= 12; m++) {
         const prevPortfolio = retPortfolio;
         const monthReturn = prevPortfolio * monthlyRate;
-        retPortfolio = prevPortfolio + monthReturn - adjustedWithdrawal;
+        const availableBeforeWithdrawal = prevPortfolio + monthReturn;
+        const effectiveWithdrawal = Math.min(
+          adjustedWithdrawal,
+          Math.max(availableBeforeWithdrawal, 0),
+        );
+        retPortfolio = availableBeforeWithdrawal - effectiveWithdrawal;
         if (retPortfolio < 0) retPortfolio = 0;
 
         yearReturn += monthReturn;
-        yearWithdrawal += adjustedWithdrawal;
+        yearWithdrawal += effectiveWithdrawal;
 
         const absoluteMonth = years * 12 + (y - 1) * 12 + m;
         const deflator = (1 + monthlyInflation) ** absoluteMonth;
@@ -161,7 +166,7 @@ export class CalculatorService {
           month: m,
           balance: Math.round(Math.max(retPortfolio, 0)),
           balanceReal: Math.round(Math.max(retPortfolio, 0) / deflator),
-          periodWithdrawal: Math.round(adjustedWithdrawal),
+          periodWithdrawal: Math.round(effectiveWithdrawal),
           periodReturn: Math.round(monthReturn),
         });
       }
@@ -222,20 +227,34 @@ export class CalculatorService {
     inflation: number,
     adjustForInflation: boolean,
   ): number {
-    let lo = 1;
-    let hi = target / 10;
-    let mid = 0;
-    for (let i = 0; i < 60; i++) {
-      mid = (lo + hi) / 2;
+    /**
+     * Simula o patrimônio final para um aporte mensal inicial,
+     * com ou sem reajuste anual pela inflação.
+     */
+    const simulatePortfolio = (monthlyContrib: number): number => {
       let p = 0;
       for (let y = 1; y <= years; y++) {
         const adj = adjustForInflation
-          ? mid * (1 + inflation / 100) ** (y - 1)
-          : mid;
+          ? monthlyContrib * (1 + inflation / 100) ** (y - 1)
+          : monthlyContrib;
         for (let m = 0; m < 12; m++) {
           p = p * (1 + monthlyRate) + adj;
         }
       }
+      return p;
+    };
+
+    let lo = 1;
+    let hi = Math.max(target / 10, 1);
+    let mid = 0;
+
+    while (simulatePortfolio(hi) < target && hi < target * 10) {
+      hi *= 2;
+    }
+
+    for (let i = 0; i < 60; i++) {
+      mid = (lo + hi) / 2;
+      const p = simulatePortfolio(mid);
       if (p < target) lo = mid;
       else hi = mid;
     }
