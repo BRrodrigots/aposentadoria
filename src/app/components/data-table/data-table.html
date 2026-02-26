@@ -1,0 +1,185 @@
+<div class="bg-bg-panel border border-border rounded-2xl p-7 mt-8">
+  <!-- Header com título e controles -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="font-mono text-[11px] tracking-[2px] uppercase text-gold">
+      Tabela detalhada
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Toggle Anual / Mensal -->
+      <div class="flex gap-1 bg-bg-panel-alt rounded-lg p-0.5">
+        <button
+          class="px-3 py-1.5 text-[11px] font-semibold rounded-md transition-all duration-200 font-mono"
+          [class]="viewMode() === 'yearly'
+            ? 'bg-border text-gold'
+            : 'text-text-dark hover:text-text-muted'"
+          (click)="viewMode.set('yearly')"
+        >
+          Anual
+        </button>
+        <button
+          class="px-3 py-1.5 text-[11px] font-semibold rounded-md transition-all duration-200 font-mono"
+          [class]="viewMode() === 'monthly'
+            ? 'bg-border text-gold'
+            : 'text-text-dark hover:text-text-muted'"
+          (click)="viewMode.set('monthly')"
+        >
+          Mensal
+        </button>
+      </div>
+
+      <!-- Botão exportar Excel -->
+      <button
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold font-mono
+               bg-green/10 border border-green/30 text-green
+               hover:bg-green/20 hover:border-green/50
+               transition-all duration-200"
+        (click)="exportToExcel()"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Acumulação / Aposentadoria -->
+  <div class="flex gap-1 bg-bg-panel-alt rounded-xl p-1 mb-6">
+    <button
+      class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-200 tracking-wide"
+      [class]="activeTab() === 'accumulation'
+        ? 'bg-border text-gold'
+        : 'text-text-dark hover:text-text-muted'"
+      (click)="activeTab.set('accumulation')"
+    >
+      Acumulação
+    </button>
+    <button
+      class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-200 tracking-wide"
+      [class]="activeTab() === 'retirement'
+        ? 'bg-border text-gold'
+        : 'text-text-dark hover:text-text-muted'"
+      (click)="activeTab.set('retirement')"
+    >
+      Aposentadoria
+    </button>
+  </div>
+
+  <!-- Tabela de acumulação -->
+  @if (activeTab() === 'accumulation') {
+    <div class="overflow-x-auto rounded-lg border border-border">
+      <table class="w-full text-left font-mono text-xs">
+        <thead>
+          <tr class="bg-bg-panel-alt">
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold whitespace-nowrap">
+              Período
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Aporte
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Rendimento
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Total aportado
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Ganhos
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-gold font-semibold text-right whitespace-nowrap">
+              Patrimônio
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Real (hoje)
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of accData(); track row.year * 100 + row.month) {
+            <tr class="border-t border-border/50 hover:bg-bg-panel-alt/50 transition-colors">
+              <td class="px-3 py-2 text-text-muted whitespace-nowrap">
+                {{ periodLabel(row) }}
+              </td>
+              <td class="px-3 py-2 text-blue text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.periodContrib) }}
+              </td>
+              <td class="px-3 py-2 text-green text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.periodReturn) }}
+              </td>
+              <td class="px-3 py-2 text-text-dim text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.contributions) }}
+              </td>
+              <td class="px-3 py-2 text-text-dim text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.gains) }}
+              </td>
+              <td class="px-3 py-2 text-gold-light font-medium text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.portfolio) }}
+              </td>
+              <td class="px-3 py-2 text-text-dark text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.portfolioReal) }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Tabela de aposentadoria -->
+  @if (activeTab() === 'retirement') {
+    <div class="overflow-x-auto rounded-lg border border-border">
+      <table class="w-full text-left font-mono text-xs">
+        <thead>
+          <tr class="bg-bg-panel-alt">
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold whitespace-nowrap">
+              Período
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Retirada
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Rendimento
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-gold font-semibold text-right whitespace-nowrap">
+              Saldo
+            </th>
+            <th class="px-3 py-2.5 text-[10px] tracking-wider uppercase text-text-dark font-semibold text-right whitespace-nowrap">
+              Real (hoje)
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of retData(); track row.year * 100 + row.month) {
+            <tr class="border-t border-border/50 hover:bg-bg-panel-alt/50 transition-colors">
+              <td class="px-3 py-2 text-text-muted whitespace-nowrap">
+                {{ periodLabel(row) }}
+              </td>
+              <td class="px-3 py-2 text-red-400 text-right whitespace-nowrap">
+                -{{ fmt.formatBRL(row.periodWithdrawal) }}
+              </td>
+              <td class="px-3 py-2 text-green text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.periodReturn) }}
+              </td>
+              <td class="px-3 py-2 text-gold-light font-medium text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.balance) }}
+              </td>
+              <td class="px-3 py-2 text-text-dark text-right whitespace-nowrap">
+                {{ fmt.formatBRL(row.balanceReal) }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <div class="font-mono text-[10px] text-text-dark mt-4">
+    @if (viewMode() === 'monthly') {
+      * Exibindo dados mês a mês · Aportes e rendimentos mensais
+    } @else {
+      * Exibindo dados anuais consolidados · Clique em "Mensal" para ver mês a mês
+    }
+  </div>
+</div>

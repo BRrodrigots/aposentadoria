@@ -37,7 +37,7 @@ export class ChartPanel {
   protected readonly activeTab = signal<'accumulation' | 'retirement'>('accumulation');
 
   protected readonly accChartData = computed(() => {
-    const data = this.calc.results().accData;
+    const data = this.calc.results().accDataYearly;
     return {
       labels: data.map((d) => `${d.year}a`),
       datasets: [
@@ -68,7 +68,7 @@ export class ChartPanel {
   });
 
   protected readonly retChartData = computed(() => {
-    const data = this.calc.results().retData;
+    const data = this.calc.results().retDataYearly;
     return {
       labels: data.map((d) => `${d.year}a`),
       datasets: [

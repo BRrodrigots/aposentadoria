@@ -3,6 +3,7 @@ import { Header } from './components/header/header';
 import { ParameterPanel } from './components/parameter-panel/parameter-panel';
 import { StatsGrid } from './components/stats-grid/stats-grid';
 import { ChartPanel } from './components/chart-panel/chart-panel';
+import { DataTable } from './components/data-table/data-table';
 import { ReverseCalculator } from './components/reverse-calculator/reverse-calculator';
 import { Footer } from './components/footer/footer';
 
@@ -13,6 +14,7 @@ import { Footer } from './components/footer/footer';
     ParameterPanel,
     StatsGrid,
     ChartPanel,
+    DataTable,
     ReverseCalculator,
     Footer,
   ],

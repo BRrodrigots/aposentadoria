@@ -2,21 +2,35 @@ import { Injectable, computed, signal } from '@angular/core';
 
 export interface AccumulationDataPoint {
   year: number;
+  month: number;
   portfolio: number;
   contributions: number;
   portfolioReal: number;
   contributionsReal: number;
+  /** Rendimento obtido neste período */
+  periodReturn: number;
+  /** Aporte realizado neste período */
+  periodContrib: number;
+  /** Ganho acumulado (patrimônio - aportes) */
+  gains: number;
 }
 
 export interface RetirementDataPoint {
   year: number;
+  month: number;
   balance: number;
   balanceReal: number;
+  /** Retirada realizada neste período */
+  periodWithdrawal: number;
+  /** Rendimento obtido neste período */
+  periodReturn: number;
 }
 
 export interface CalculationResults {
-  accData: AccumulationDataPoint[];
-  retData: RetirementDataPoint[];
+  accDataMonthly: AccumulationDataPoint[];
+  accDataYearly: AccumulationDataPoint[];
+  retDataMonthly: RetirementDataPoint[];
+  retDataYearly: RetirementDataPoint[];
   finalPortfolio: number;
   safeWithdrawalMonthly: number;
   safeWithdrawalReal: number;
@@ -59,7 +73,10 @@ export class CalculatorService {
     const adjustForInflation = this.adjustContribForInflation();
 
     const monthlyRate = (1 + annualReturn / 100) ** (1 / 12) - 1;
-    const accData: AccumulationDataPoint[] = [];
+    const monthlyInflation = (1 + inflation / 100) ** (1 / 12) - 1;
+
+    const accDataMonthly: AccumulationDataPoint[] = [];
+    const accDataYearly: AccumulationDataPoint[] = [];
     let portfolio = 0;
     let totalContrib = 0;
 
@@ -68,17 +85,46 @@ export class CalculatorService {
         ? (1 + inflation / 100) ** (y - 1)
         : 1;
       const adjContrib = monthlyContrib * yearlyInflFactor;
-      for (let m = 0; m < 12; m++) {
-        portfolio = portfolio * (1 + monthlyRate) + adjContrib;
+
+      let yearReturn = 0;
+      let yearContrib = 0;
+
+      for (let m = 1; m <= 12; m++) {
+        const prevPortfolio = portfolio;
+        const monthReturn = prevPortfolio * monthlyRate;
+        portfolio = prevPortfolio + monthReturn + adjContrib;
         totalContrib += adjContrib;
+
+        yearReturn += monthReturn;
+        yearContrib += adjContrib;
+
+        const absoluteMonth = (y - 1) * 12 + m;
+        const deflator = (1 + monthlyInflation) ** absoluteMonth;
+
+        accDataMonthly.push({
+          year: y,
+          month: m,
+          portfolio: Math.round(portfolio),
+          contributions: Math.round(totalContrib),
+          portfolioReal: Math.round(portfolio / deflator),
+          contributionsReal: Math.round(totalContrib / deflator),
+          periodReturn: Math.round(monthReturn),
+          periodContrib: Math.round(adjContrib),
+          gains: Math.round(portfolio - totalContrib),
+        });
       }
-      const deflator = (1 + inflation / 100) ** y;
-      accData.push({
+
+      const deflatorYear = (1 + inflation / 100) ** y;
+      accDataYearly.push({
         year: y,
+        month: 12,
         portfolio: Math.round(portfolio),
         contributions: Math.round(totalContrib),
-        portfolioReal: Math.round(portfolio / deflator),
-        contributionsReal: Math.round(totalContrib / deflator),
+        portfolioReal: Math.round(portfolio / deflatorYear),
+        contributionsReal: Math.round(totalContrib / deflatorYear),
+        periodReturn: Math.round(yearReturn),
+        periodContrib: Math.round(yearContrib),
+        gains: Math.round(portfolio - totalContrib),
       });
     }
 
@@ -87,24 +133,48 @@ export class CalculatorService {
     const safeWithdrawalReal =
       safeWithdrawalMonthly / (1 + inflation / 100) ** years;
 
-    const retData: RetirementDataPoint[] = [];
+    const retDataMonthly: RetirementDataPoint[] = [];
+    const retDataYearly: RetirementDataPoint[] = [];
     let retPortfolio = finalPortfolio;
 
     for (let y = 1; y <= retirementYears; y++) {
-      // Regra dos 4%: retirada ajustada pela inflação a cada ano
       const yearlyInflFactor = (1 + inflation / 100) ** y;
       const adjustedWithdrawal = safeWithdrawalMonthly * yearlyInflFactor;
-      for (let m = 0; m < 12; m++) {
-        retPortfolio =
-          retPortfolio * (1 + monthlyRate) - adjustedWithdrawal;
+
+      let yearReturn = 0;
+      let yearWithdrawal = 0;
+
+      for (let m = 1; m <= 12; m++) {
+        const prevPortfolio = retPortfolio;
+        const monthReturn = prevPortfolio * monthlyRate;
+        retPortfolio = prevPortfolio + monthReturn - adjustedWithdrawal;
         if (retPortfolio < 0) retPortfolio = 0;
+
+        yearReturn += monthReturn;
+        yearWithdrawal += adjustedWithdrawal;
+
+        const absoluteMonth = years * 12 + (y - 1) * 12 + m;
+        const deflator = (1 + monthlyInflation) ** absoluteMonth;
+
+        retDataMonthly.push({
+          year: y,
+          month: m,
+          balance: Math.round(Math.max(retPortfolio, 0)),
+          balanceReal: Math.round(Math.max(retPortfolio, 0) / deflator),
+          periodWithdrawal: Math.round(adjustedWithdrawal),
+          periodReturn: Math.round(monthReturn),
+        });
       }
+
       const totalYear = years + y;
-      const deflator = (1 + inflation / 100) ** totalYear;
-      retData.push({
+      const deflatorYear = (1 + inflation / 100) ** totalYear;
+      retDataYearly.push({
         year: y,
+        month: 12,
         balance: Math.round(Math.max(retPortfolio, 0)),
-        balanceReal: Math.round(Math.max(retPortfolio, 0) / deflator),
+        balanceReal: Math.round(Math.max(retPortfolio, 0) / deflatorYear),
+        periodWithdrawal: Math.round(yearWithdrawal),
+        periodReturn: Math.round(yearReturn),
       });
     }
 
@@ -122,8 +192,10 @@ export class CalculatorService {
     const deflatorFinal = (1 + inflation / 100) ** years;
 
     return {
-      accData,
-      retData,
+      accDataMonthly,
+      accDataYearly,
+      retDataMonthly,
+      retDataYearly,
       finalPortfolio,
       safeWithdrawalMonthly,
       safeWithdrawalReal,
