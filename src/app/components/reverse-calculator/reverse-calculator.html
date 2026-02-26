@@ -1,0 +1,44 @@
+<div class="bg-bg-panel border border-border rounded-2xl p-7 mt-6">
+  <div class="font-mono text-[11px] tracking-[2px] uppercase text-gold mb-6">
+    Calculadora reversa — quanto preciso aportar?
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+    <div>
+      <app-slider-input
+        label="Renda desejada (valores de hoje)"
+        [value]="calc.targetIncome()"
+        [min]="500"
+        [max]="50000"
+        [step]="500"
+        prefix="R$"
+        [minDisplay]="fmt.formatBRL(500)"
+        [maxDisplay]="fmt.formatBRL(50000)"
+        (valueChange)="calc.targetIncome.set($event)"
+      />
+      <div class="font-mono text-xs text-text-dark leading-relaxed">
+        {{ description() }}
+      </div>
+    </div>
+
+    <div class="bg-bg-highlight border border-gold/20 rounded-xl p-5">
+      <div class="font-mono text-[10px] tracking-[2px] uppercase text-gold mb-3">
+        Aporte inicial necessário
+      </div>
+      <div class="font-mono text-3xl font-bold text-gold">
+        {{ fmt.formatBRL(r().neededMonthly) }}<span class="text-sm text-text-dim">/mês</span>
+      </div>
+      <div class="font-mono text-xs text-text-dim mt-3 leading-relaxed space-y-1">
+        <p>
+          Patrimônio necessário: {{ fmt.formatBRL(r().neededPortfolio) }} nominais
+        </p>
+        <p>
+          ({{ fmt.formatBRL(r().neededPortfolioReal) }} em valores de hoje)
+        </p>
+        <p class="mt-2">
+          Renda nominal na aposentadoria: {{ fmt.formatBRL(r().targetNominalMonthly) }}/mês
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

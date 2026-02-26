@@ -1,0 +1,24 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+  <app-stat-card
+    label="Patrimônio final"
+    [nominal]="r().finalPortfolio"
+    [real]="r().finalReal"
+    [highlight]="true"
+  />
+  <app-stat-card
+    label="Renda mensal (4%)"
+    [nominal]="r().safeWithdrawalMonthly"
+    [real]="r().safeWithdrawalReal"
+    [highlight]="true"
+  />
+  <app-stat-card
+    label="Total aportado"
+    [nominal]="r().totalContrib"
+    [real]="r().totalContribReal"
+  />
+  <app-stat-card
+    label="Ganho com juros"
+    [nominal]="r().gains"
+    [real]="r().gainsReal"
+  />
+</div>

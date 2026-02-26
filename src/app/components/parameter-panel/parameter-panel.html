@@ -1,0 +1,97 @@
+<div class="bg-bg-panel border border-border rounded-2xl p-7">
+  <div class="font-mono text-[11px] tracking-[2px] uppercase text-gold mb-6">
+    Parâmetros
+  </div>
+
+  <app-slider-input
+    label="Tempo até aposentadoria"
+    [value]="calc.years()"
+    [min]="5"
+    [max]="45"
+    [step]="1"
+    suffix="anos"
+    [minDisplay]="'5 anos'"
+    [maxDisplay]="'45 anos'"
+    (valueChange)="calc.years.set($event)"
+  />
+
+  <app-slider-input
+    label="Rendimento anual"
+    [value]="calc.annualReturn()"
+    [min]="3"
+    [max]="20"
+    [step]="0.5"
+    suffix="% a.a."
+    [minDisplay]="'3%'"
+    [maxDisplay]="'20%'"
+    (valueChange)="calc.annualReturn.set($event)"
+  />
+
+  <app-slider-input
+    label="Aporte mensal inicial"
+    [value]="calc.monthlyContrib()"
+    [min]="100"
+    [max]="20000"
+    [step]="100"
+    prefix="R$"
+    [minDisplay]="fmt.formatBRL(100)"
+    [maxDisplay]="fmt.formatBRL(20000)"
+    (valueChange)="calc.monthlyContrib.set($event)"
+  />
+
+  <app-slider-input
+    label="Inflação anual"
+    [value]="calc.inflation()"
+    [min]="2"
+    [max]="15"
+    [step]="0.5"
+    suffix="% a.a."
+    [minDisplay]="'2%'"
+    [maxDisplay]="'15%'"
+    (valueChange)="calc.inflation.set($event)"
+  />
+
+  <app-slider-input
+    label="Duração da aposentadoria"
+    [value]="calc.retirementYears()"
+    [min]="10"
+    [max]="40"
+    [step]="1"
+    suffix="anos"
+    [minDisplay]="'10 anos'"
+    [maxDisplay]="'40 anos'"
+    (valueChange)="calc.retirementYears.set($event)"
+  />
+
+  <div class="mt-2 pt-4 border-t border-border">
+    <label class="flex items-center justify-between cursor-pointer group">
+      <span class="text-sm font-semibold text-text-muted group-hover:text-text-primary transition-colors">
+        Corrigir aportes pela inflação
+      </span>
+      <div class="relative">
+        <input
+          type="checkbox"
+          class="sr-only peer"
+          [checked]="calc.adjustContribForInflation()"
+          (change)="calc.adjustContribForInflation.set(!calc.adjustContribForInflation())"
+        />
+        <div class="w-11 h-6 bg-border rounded-full
+                    peer-checked:bg-gold
+                    peer-focus-visible:ring-2 peer-focus-visible:ring-gold/50
+                    transition-colors duration-200">
+        </div>
+        <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-bg-panel rounded-full
+                    shadow-sm transition-transform duration-200
+                    peer-checked:translate-x-5">
+        </div>
+      </div>
+    </label>
+    <p class="font-mono text-[10px] text-text-dark mt-2 leading-relaxed">
+      @if (calc.adjustContribForInflation()) {
+        Aportes serão reajustados em {{ calc.inflation() }}% ao ano
+      } @else {
+        Aportes permanecem fixos em {{ fmt.formatBRL(calc.monthlyContrib()) }}/mês
+      }
+    </p>
+  </div>
+</div>

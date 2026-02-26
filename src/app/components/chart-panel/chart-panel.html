@@ -1,0 +1,57 @@
+<div class="bg-bg-panel border border-border rounded-2xl p-7">
+  <!-- Tabs -->
+  <div class="flex gap-1 bg-bg-panel-alt rounded-xl p-1 mb-6">
+    <button
+      class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-200 tracking-wide"
+      [class]="activeTab() === 'accumulation'
+        ? 'bg-border text-gold'
+        : 'text-text-dark hover:text-text-muted'"
+      (click)="activeTab.set('accumulation')"
+    >
+      Acumulação
+    </button>
+    <button
+      class="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all duration-200 tracking-wide"
+      [class]="activeTab() === 'retirement'
+        ? 'bg-border text-gold'
+        : 'text-text-dark hover:text-text-muted'"
+      (click)="activeTab.set('retirement')"
+    >
+      Aposentadoria
+    </button>
+  </div>
+
+  @if (activeTab() === 'accumulation') {
+    <div class="font-mono text-[11px] tracking-[2px] uppercase text-gold mb-4">
+      Crescimento do patrimônio
+    </div>
+    <div class="h-[280px] mb-2">
+      <canvas
+        baseChart
+        type="line"
+        [data]="accChartData()"
+        [options]="chartOptions()"
+      ></canvas>
+    </div>
+    <div class="font-mono text-[11px] text-text-dark mt-2">
+      {{ accFootnote() }}
+    </div>
+  }
+
+  @if (activeTab() === 'retirement') {
+    <div class="font-mono text-[11px] tracking-[2px] uppercase text-gold mb-4">
+      Saldo durante a aposentadoria (regra dos 4%)
+    </div>
+    <div class="h-[280px] mb-2">
+      <canvas
+        baseChart
+        type="line"
+        [data]="retChartData()"
+        [options]="chartOptions()"
+      ></canvas>
+    </div>
+    <div class="font-mono text-[11px] text-text-dark mt-2">
+      {{ retFootnote() }}
+    </div>
+  }
+</div>
