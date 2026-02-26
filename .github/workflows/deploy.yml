@@ -29,6 +29,13 @@ jobs:
 
       - run: npx ng build --configuration production
 
+      - name: List build output
+        run: |
+          echo "Listing dist/retirement-calculator/browser contents:"
+          ls -la dist/retirement-calculator/browser/
+          echo "Content of index.html base tag:"
+          grep -n "base href" dist/retirement-calculator/browser/index.html || echo "No base href found"
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/retirement-calculator/browser
