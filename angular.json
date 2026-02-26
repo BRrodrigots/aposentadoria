@@ -67,7 +67,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/Aposentadoria/"
+              "baseHref": "/aposentadoria/"
             },
             "development": {
               "optimization": false,
