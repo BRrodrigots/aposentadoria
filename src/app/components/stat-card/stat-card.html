@@ -1,17 +1,17 @@
 <div
-  class="rounded-xl p-4 transition-colors duration-200"
+  class="rounded-xl p-5 transition-colors duration-200"
   [class]="highlight()
     ? 'bg-bg-highlight border border-gold/20'
     : 'bg-bg-panel border border-border'"
 >
-  <div class="font-mono text-[10px] tracking-widest uppercase text-text-dark mb-1.5">
+  <div class="font-mono text-[10px] tracking-widest uppercase text-text-dark mb-2">
     {{ label() }}
   </div>
-  <div class="font-mono text-base font-bold text-gold-light">
+  <div class="font-mono text-lg font-bold text-gold-light">
     {{ fmt.formatBRL(nominal()) }}
   </div>
-  <div class="font-mono text-[11px] text-text-dim mt-1">
-    <span class="bg-border text-gold text-[9px] px-1.5 py-0.5 rounded tracking-wide uppercase mr-1">
+  <div class="font-mono text-[11px] text-text-dim mt-1.5">
+    <span class="bg-border text-gold text-[9px] px-1.5 py-0.5 rounded tracking-wide uppercase mr-1.5">
       hoje
     </span>
     {{ fmt.formatBRL(real()) }}

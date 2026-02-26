@@ -1,12 +1,4 @@
-import {
-  Component,
-  inject,
-  signal,
-  computed,
-  viewChild,
-  ElementRef,
-  afterNextRender,
-} from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import {
   Chart,
@@ -136,6 +128,11 @@ export class ChartPanel {
         callbacks: {
           label: (ctx: any) => {
             const val = this.fmt.formatBRL(ctx.raw);
+            const label = ctx.dataset.label as string;
+            const isRealDataset = label.toLowerCase().includes('real');
+            if (isRealDataset) {
+              return `${label}: ${val} hoje`;
+            }
             const yearIdx = ctx.dataIndex;
             const inflation = this.calc.inflation();
             const years = this.activeTab() === 'accumulation'
@@ -143,7 +140,7 @@ export class ChartPanel {
               : this.calc.years() + yearIdx + 1;
             const deflator = (1 + inflation / 100) ** years;
             const realVal = this.fmt.formatBRL(ctx.raw / deflator);
-            return `${ctx.dataset.label}: ${val} (${realVal} hoje)`;
+            return `${label}: ${val} (${realVal} hoje)`;
           },
         },
       },

@@ -26,53 +26,61 @@
   --color-grid: #1a2332;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  body {
+    font-family: var(--font-syne);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-body {
-  font-family: var(--font-syne);
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  app-root,
+  app-header,
+  app-parameter-panel,
+  app-stats-grid,
+  app-stat-card,
+  app-chart-panel,
+  app-reverse-calculator,
+  app-footer,
+  app-slider-input {
+    display: block;
+  }
 
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  background: var(--color-border);
-  border-radius: 2px;
-  outline: none;
-  width: 100%;
-  cursor: pointer;
-}
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--color-border);
+    border-radius: 2px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+  }
 
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  background: var(--color-gold);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.15s;
-}
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--color-gold);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.3);
-}
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+  }
 
-input[type="range"]::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: var(--color-gold);
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
+  input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--color-gold);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
 }
 
 @keyframes pulse {

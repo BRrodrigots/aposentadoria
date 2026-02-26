@@ -91,9 +91,12 @@ export class CalculatorService {
     let retPortfolio = finalPortfolio;
 
     for (let y = 1; y <= retirementYears; y++) {
+      // Regra dos 4%: retirada ajustada pela inflação a cada ano
+      const yearlyInflFactor = (1 + inflation / 100) ** y;
+      const adjustedWithdrawal = safeWithdrawalMonthly * yearlyInflFactor;
       for (let m = 0; m < 12; m++) {
         retPortfolio =
-          retPortfolio * (1 + monthlyRate) - safeWithdrawalMonthly;
+          retPortfolio * (1 + monthlyRate) - adjustedWithdrawal;
         if (retPortfolio < 0) retPortfolio = 0;
       }
       const totalYear = years + y;
